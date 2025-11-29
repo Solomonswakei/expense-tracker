@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import './App.css';
 
 function App() {
@@ -6,6 +7,7 @@ function App() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
+  const [editingId, setEditingId] = useState(null);
 
   // Load expenses from localStorage when app starts
   useEffect(() => {
@@ -23,21 +25,48 @@ function App() {
   const addExpense = (e) => {
     e.preventDefault();
     if (description && amount) {
-      const newExpense = {
-        id: Date.now(),
-        description,
-        amount: parseFloat(amount),
-        category,
-        date: new Date().toLocaleDateString()
-      };
-      setExpenses([...expenses, newExpense]);
+      if (editingId) {
+        // Update existing expense
+        setExpenses(expenses.map(exp => 
+          exp.id === editingId 
+            ? { ...exp, description, amount: parseFloat(amount), category }
+            : exp
+        ));
+        setEditingId(null);
+      } else {
+        // Add new expense
+        const newExpense = {
+          id: Date.now(),
+          description,
+          amount: parseFloat(amount),
+          category,
+          date: new Date().toLocaleDateString()
+        };
+        setExpenses([...expenses, newExpense]);
+      }
       setDescription('');
       setAmount('');
+      setCategory('Food');
     }
   };
 
   const deleteExpense = (id) => {
     setExpenses(expenses.filter(expense => expense.id !== id));
+  };
+
+  const startEdit = (expense) => {
+    setDescription(expense.description);
+    setAmount(expense.amount.toString());
+    setCategory(expense.category);
+    setEditingId(expense.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setDescription('');
+    setAmount('');
+    setCategory('Food');
   };
 
   const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
@@ -46,6 +75,14 @@ function App() {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
     return acc;
   }, {});
+
+  // Prepare data for pie chart
+  const chartData = Object.entries(categoryTotals).map(([name, value]) => ({
+    name,
+    value
+  }));
+
+  const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#feca57'];
 
   return (
     <div className="App">
@@ -81,8 +118,43 @@ function App() {
             <option value="Health">⚕️ Health</option>
             <option value="Other">📦 Other</option>
           </select>
-          <button type="submit">Add Expense</button>
+          <div className="button-group">
+            <button type="submit" className="submit-btn">
+              {editingId ? '✓ Update Expense' : '+ Add Expense'}
+            </button>
+            {editingId && (
+              <button type="button" onClick={cancelEdit} className="cancel-btn">
+                ✕ Cancel
+              </button>
+            )}
+          </div>
         </form>
+
+        {chartData.length > 0 && (
+          <div className="chart-section">
+            <h3>📊 Spending Breakdown</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `KSh ${value.toFixed(2)}`} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
         {Object.keys(categoryTotals).length > 0 && (
           <div className="category-summary">
@@ -104,7 +176,7 @@ function App() {
             <p className="no-expenses">No expenses yet. Add your first one above! 👆</p>
           ) : (
             expenses.map(expense => (
-              <div key={expense.id} className="expense-item">
+              <div key={expense.id} className={`expense-item ${editingId === expense.id ? 'editing' : ''}`}>
                 <div className="expense-info">
                   <strong>{expense.description}</strong>
                   <span className="category-badge">{expense.category}</span>
@@ -112,7 +184,12 @@ function App() {
                 </div>
                 <div className="expense-amount">
                   <span>KSh {expense.amount.toFixed(2)}</span>
-                  <button onClick={() => deleteExpense(expense.id)} className="delete-btn">🗑️</button>
+                  <button onClick={() => startEdit(expense)} className="edit-btn" title="Edit">
+                    ✏️
+                  </button>
+                  <button onClick={() => deleteExpense(expense.id)} className="delete-btn" title="Delete">
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))

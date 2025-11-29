@@ -242,3 +242,75 @@ h1 {
     justify-content: space-between;
   }
 }
+.chart-section {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.chart-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.button-group {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+
+.submit-btn {
+  flex: 1;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.cancel-btn {
+  padding: 15px 30px;
+  background: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.cancel-btn:hover {
+  transform: translateY(-2px);
+}
+
+.edit-btn {
+  background: #4facfe;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s;
+  margin-right: 8px;
+}
+
+.edit-btn:hover {
+  transform: scale(1.1);
+}
+
+.expense-item.editing {
+  background: #fff9e6;
+  border: 2px solid #feca57;
+}
