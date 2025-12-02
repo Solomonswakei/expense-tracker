@@ -142,7 +142,10 @@ function App() {
     <div className="App">
       <div className="container">
         <header className="app-header">
-          <h1>💰 Expense Tracker Pro</h1>
+          <div className="app-title">
+            <h1>💰 Expense Tracker Pro</h1>
+            <p className="welcome-text">Welcome! Start tracking your expenses and take control of your finances.</p>
+          </div>
           <button onClick={() => setShowBudgetModal(true)} className="budget-btn">
             🎯 Set Budget
           </button>
